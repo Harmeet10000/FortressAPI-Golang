@@ -46,5 +46,41 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  traefik_v3:
+    image: traefik:v3.1.6
+    command: "--configFile=/config/traefik.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./traefik_data:/etc/traefik"
+      - "./config/configuration.yml:/config/traefik.yml:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./localhost.crt:/certs/localhost.crt:ro"
+      - "./localhost.key:/certs/localhost.key:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`proxy.localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    networks:
+      - localhost_net
+
+  app_nginx:
+    image: nginx
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.services.app.loadbalancer.server.port=80"
+    networks:
+      - localhost_net
+
+networks:
+  localhost_net:
+    external: true
+
 volumes:
   pgdata:
+  traefik_data:
