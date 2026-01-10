@@ -31,12 +31,30 @@ temp/
 *.swp
 *.lock
 
-# Compiled output
+# Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+bin/
 dist/
 
-# Testing
+# Go test binaries
+*.test
+
+# Go coverage
+*.out
 coverage/
 .nyc_output/
+
+# Go build cache
+.cache/
+
+# Go modules
+vendor/
+go.sum
 
 # Secrets - NEVER commit these!
 *.key

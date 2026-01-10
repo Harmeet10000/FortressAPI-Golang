@@ -1,0 +1,92 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Version control
+.hg
+.svn
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Development
+node_modules
+.npm
+.cache
+.eslintcache
+
+# Go specific
+vendor/
+bin/
+dist/
+*.test
+*.out
+coverage/
+.nyc_output/
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.cert
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+*.bak
+
+# OS files
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.AppleDouble
+
+# Docker and CI/CD
+docker-compose.yml
+docker-compose*.yml
+.dockerignore
+Dockerfile
+Dockerfile.*
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Testing
+.nyc_output/
+coverage/
+
+# Build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Documentation
+docs/
+README.md
+LICENSE
+
+# Node modules (if any frontend code)
+node_modules/
+yarn.lock
+package-lock.json
+
+# Other
+*.orig
+*.rej
+.history
