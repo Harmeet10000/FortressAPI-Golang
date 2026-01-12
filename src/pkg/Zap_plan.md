@@ -891,80 +891,6 @@ func main() {
 
 ### **Day 9: Integration with Popular Frameworks**
 
-#### **Gin Framework**
-
-```go
-// Exercise 8: Zap with Gin
-package main
-
-import (
-	"time"
-
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-)
-
-func GinLogger(logger *zap.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
-		path := c.Request.URL.Path
-		query := c.Request.URL.RawQuery
-
-		c.Next()
-
-		end := time.Now()
-		latency := end.Sub(start)
-
-		if len(c.Errors) > 0 {
-			// Log errors
-			for _, e := range c.Errors.Errors() {
-				logger.Error(e)
-			}
-		} else {
-			logger.Info(path,
-				zap.Int("status", c.Writer.Status()),
-				zap.String("method", c.Request.Method),
-				zap.String("path", path),
-				zap.String("query", query),
-				zap.String("ip", c.ClientIP()),
-				zap.String("user-agent", c.Request.UserAgent()),
-				zap.Duration("latency", latency),
-			)
-		}
-	}
-}
-
-func GinRecovery(logger *zap.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				logger.Error("Panic recovered",
-					zap.Any("error", err),
-					zap.String("path", c.Request.URL.Path),
-					zap.Stack("stacktrace"),
-				)
-				c.AbortWithStatus(500)
-			}
-		}()
-		c.Next()
-	}
-}
-
-func main() {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-
-	r := gin.New()
-	r.Use(GinLogger(logger), GinRecovery(logger))
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
-
-	r.Run(":8080")
-}
-```
-
 #### **Echo Framework**
 
 ```go
@@ -1051,7 +977,7 @@ func UnaryServerInterceptor(logger *zap.Logger) grpc.UnaryServerInterceptor {
 				zap.String("method", info.FullMethod),
 				zap.Duration("duration", duration),
 				zap.Error(err),
-```go
+
 			)
 		} else {
 			logger.Info("gRPC request completed",

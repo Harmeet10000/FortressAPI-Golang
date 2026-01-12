@@ -91,3 +91,6 @@ uploads/
 
 # if you are using pnpm
 .pnpm-store/
+
+# executables binary
+fortress_api

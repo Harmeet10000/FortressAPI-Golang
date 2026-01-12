@@ -1,26 +1,29 @@
 # Makefile for Production-grade Auth Golang Project
 
+# Load environment variables from .env.dev file if it exists
+ifneq (,$(wildcard .env.dev))
+	include .env.dev
+	export
+endif
+
 # Variables
-APP_NAME=auth-service
-MAIN_PATH=./cmd/api
+APP_NAME=fortress_api
+MAIN_PATH=./src/cmd/api
 BINARY_PATH=./bin/$(APP_NAME)
-MIGRATION_DIR=./migrations
-SEED_DIR=./seeds
+MIGRATION_DIR=./src/internal/db/migrations
+SEED_DIR=./src/internal/db/seeds
 
 # Database Configuration
-DB_HOST?=localhost
-DB_PORT?=5432
-DB_USER?=postgres
-DB_PASSWORD?=postgres
-DB_NAME?=auth_db
-DB_SSLMODE?=disable
-DB_URL=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
+# DATABASE_URL is loaded from .env file (see above)
+# If not set, you can override with: make target DATABASE_URL="your-url"
+DB_URL=$(DATABASE_URL)
 
 # Colors for output
-COLOR_RESET=\033[0m
-COLOR_BLUE=\033[34m
-COLOR_GREEN=\033[32m
-COLOR_YELLOW=\033[33m
+# Using printf with octal escapes (most compatible)
+COLOR_RESET=$(shell printf '\033[0m')
+COLOR_BLUE=$(shell printf '\033[34m')
+COLOR_GREEN=$(shell printf '\033[32m')
+COLOR_YELLOW=$(shell printf '\033[33m')
 
 .PHONY: help
 help: ## Show this help message
