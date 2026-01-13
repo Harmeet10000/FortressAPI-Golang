@@ -59,8 +59,8 @@ func filterQueryParams(r *http.Request, whitelist []string) {
 
 	for k, v := range query {
 		if len(v) > 1 {
-			// query.Set(k, v[0]) // first value
-			query.Set(k, v[len(v)-1]) // last value
+			query.Set(k, v[0]) // first value
+			// query.Set(k, v[len(v)-1]) // last value
 		}
 		if !isWhiteListed(k, whitelist) {
 			query.Del(k)

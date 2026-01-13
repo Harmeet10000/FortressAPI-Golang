@@ -111,43 +111,6 @@ my-app/
 
 ---
 
-<a name="installation"></a>
-## 🚀 **3. Installation**
-
-### **Step 1: Install Tools**
-
-```bash
-# Install Goose
-go install github.com/pressly/goose/v3/cmd/goose@latest
-
-# Install sqlc
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-
-# Verify installation
-goose version
-sqlc version
-```
-
-### **Step 2: Initialize Project**
-
-```bash
-# Create project
-mkdir my-blog-api
-cd my-blog-api
-
-# Initialize Go module
-go mod init github.com/yourusername/my-blog-api
-
-# Install database driver
-go get github.com/lib/pq  # PostgreSQL
-
-# Create directory structure
-mkdir -p cmd/server
-mkdir -p db/{migrations,queries}
-mkdir -p internal/{database,repository,service,handler}
-mkdir -p pkg/config
-mkdir -p scripts
-```
 
 ### **Step 3: Create Configuration Files**
 
@@ -249,39 +212,6 @@ MIGRATIONS_DIR := db/migrations
 include .env
 export
 
-.PHONY: help
-help: ## Show this help message
-	@echo 'Usage: make [target]'
-	@echo ''
-	@echo 'Available targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-.PHONY: install-tools
-install-tools: ## Install required tools
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-
-.PHONY: setup
-setup: ## Initial project setup
-	cp .env.example .env
-	@echo "Please edit .env file with your settings"
-
-# Database commands
-.PHONY: db-up
-db-up: ## Start database (Docker)
-	docker-compose up -d postgres
-
-.PHONY: db-down
-db-down: ## Stop database (Docker)
-	docker-compose down
-
-.PHONY: db-create
-db-create: ## Create database
-	createdb -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) $(DB_NAME)
-
-.PHONY: db-drop
-db-drop: ## Drop database
-	dropdb -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) $(DB_NAME)
 
 # Migration commands
 .PHONY: migrate-up
@@ -318,10 +248,6 @@ sqlc-generate: ## Generate Go code from SQL
 sqlc-vet: ## Check SQL queries
 	sqlc vet
 
-# Development commands
-.PHONY: run
-run: ## Run the application
-	go run cmd/server/main.go
 
 .PHONY: build
 build: ## Build the application
@@ -339,37 +265,6 @@ test-coverage: test ## Run tests with coverage report
 lint: ## Run linter
 	golangci-lint run
 
-.PHONY: clean
-clean: ## Clean build artifacts
-	rm -rf bin/
-	rm -f coverage.out
-
-# Docker commands
-.PHONY: docker-build
-docker-build: ## Build Docker image
-	docker build -t my-blog-api:latest .
-
-.PHONY: docker-up
-docker-up: ## Start all services with Docker Compose
-	docker-compose up -d
-
-.PHONY: docker-down
-docker-down: ## Stop all services
-	docker-compose down
-
-.PHONY: docker-logs
-docker-logs: ## Show Docker logs
-	docker-compose logs -f
-
-# Development workflow
-.PHONY: dev-setup
-dev-setup: install-tools setup db-up migrate-up sqlc-generate ## Complete development setup
-
-.PHONY: dev-reset
-dev-reset: migrate-reset migrate-up sqlc-generate ## Reset database and regenerate code
-
-.PHONY: new-migration
-new-migration: migrate-create migrate-up sqlc-generate ## Create and apply new migration
 ```
 
 ---

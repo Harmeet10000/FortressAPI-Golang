@@ -7,8 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"restapi/pkg/utils"
 
+
+	"github.com/Harmeet10000/Fortress_API/src/internal/lib"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -41,7 +42,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Token Malformed", http.StatusUnauthorized)
 				return
 			}
-			utils.ErrorHandler(err, "")
+			lib.ErrorHandler(err, "")
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
@@ -60,10 +61,10 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), utils.ContextKey("role"), claims["role"])
-		ctx = context.WithValue(ctx, utils.ContextKey("expiresAt"), claims["exp"])
-		ctx = context.WithValue(ctx, utils.ContextKey("username"), claims["user"])
-		ctx = context.WithValue(ctx, utils.ContextKey("userId"), claims["uid"])
+		ctx := context.WithValue(r.Context(), lib.ContextKey("role"), claims["role"])
+		ctx = context.WithValue(ctx, lib.ContextKey("expiresAt"), claims["exp"])
+		ctx = context.WithValue(ctx, lib.ContextKey("username"), claims["user"])
+		ctx = context.WithValue(ctx, lib.ContextKey("userId"), claims["uid"])
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 		fmt.Println("Sent Response from JWT Middleware")

@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"restapi/pkg/utils"
 	"strings"
 
+	"github.com/Harmeet10000/Fortress_API/src/internal/lib"
 	"github.com/microcosm-cc/bluemonday"
 )
 
@@ -56,7 +56,7 @@ func XSSMiddleware(next http.Handler) http.Handler {
 			if r.Body != nil {
 				bodyBytes, err := io.ReadAll(r.Body)
 				if err != nil {
-					http.Error(w, utils.ErrorHandler(err, "Error reading request body").Error(), http.StatusBadRequest)
+					http.Error(w, lib.ErrorHandler(err, "Error reading request body").Error(), http.StatusBadRequest)
 					return
 				}
 
@@ -69,7 +69,7 @@ func XSSMiddleware(next http.Handler) http.Handler {
 					var inputData interface{}
 					err := json.NewDecoder(bytes.NewReader([]byte(bodyString))).Decode(&inputData)
 					if err != nil {
-						http.Error(w, utils.ErrorHandler(err, "Invalid JSON body").Error(), http.StatusBadRequest)
+						http.Error(w, lib.ErrorHandler(err, "Invalid JSON body").Error(), http.StatusBadRequest)
 						return
 					}
 
@@ -83,7 +83,7 @@ func XSSMiddleware(next http.Handler) http.Handler {
 					// Marshal the sanitized data back to the body
 					sanitizedBody, err := json.Marshal(sanitizedData)
 					if err != nil {
-						http.Error(w, utils.ErrorHandler(err, "Error sanitizing body").Error(), http.StatusBadRequest)
+						http.Error(w, lib.ErrorHandler(err, "Error sanitizing body").Error(), http.StatusBadRequest)
 						return
 					}
 
@@ -123,7 +123,7 @@ func clean(data interface{}) (interface{}, error) {
 	case string:
 		return sanitizeString(v), nil
 	default:
-		return nil, utils.ErrorHandler(fmt.Errorf("unsupported type: %T", data), fmt.Sprintf("unsupported type: %T", data))
+		return nil, lib.ErrorHandler(fmt.Errorf("unsupported type: %T", data), fmt.Sprintf("unsupported type: %T", data))
 	}
 }
 
