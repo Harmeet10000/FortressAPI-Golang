@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -157,7 +158,7 @@ func CheckDatabase(ctx context.Context, db *pgx.Conn) HealthCheckResponse {
 }
 
 // CheckDatabasePool checks PostgreSQL connection pool health
-func CheckDatabasePool(ctx context.Context, pool *pgx.Pool) HealthCheckResponse {
+func CheckDatabasePool(ctx context.Context, pool *pgxpool.Pool) HealthCheckResponse {
 	start := time.Now()
 	response := HealthCheckResponse{
 		Details: make(map[string]interface{}),

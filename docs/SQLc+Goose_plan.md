@@ -32,10 +32,10 @@ This combination is the **gold standard** for Go database work:
 │           Your Application              │
 ├─────────────────────────────────────────┤
 │                                         │
-│  ┌──────────┐         ┌──────────┐     │
-│  │  Goose   │────────▶│ Database │     │
-│  │(Migrate) │         │ (Schema) │     │
-│  └──────────┘         └────┬─────┘     │
+│  ┌──────────┐         ┌──────────┐      │
+│  │  Goose   │────────▶│ Database │      │
+│  │(Migrate) │         │ (Schema) │      │
+│  └──────────┘         └────┬─────┘      │
 │                            │            │
 │  ┌──────────┐              │            │
 │  │  sqlc    │──────────────┘            │
@@ -144,12 +144,12 @@ sql:
 **.env.example**
 ```bash
 # Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=secret
-DB_NAME=myblog
-DB_SSLMODE=disable
+DATABASE_HOST=ep-holy-truth-a1vgozw6-pooler.ap-southeast-1.aws.neon.tech
+DATABASE_PORT=5432
+DATABASE_USER=neondb_owner
+DATABASE_PASSWORD=npg_x7dcbAoVQPe2
+DATABASE_NAME=neondb
+DATABASE_SSL_MODE=require
 
 # Server
 SERVER_PORT=8080
@@ -159,54 +159,11 @@ SERVER_HOST=0.0.0.0
 ENV=development
 ```
 
-**.gitignore**
-```
-# Binaries
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-bin/
-dist/
-
-# Test binary
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Dependencies
-vendor/
-
-# Go workspace file
-go.work
-
-# Environment variables
-.env
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-```
-
 **Makefile**
 ```makefile
 # Variables
 DB_URL := postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
-MIGRATIONS_DIR := db/migrations
+MIGRATIONS_DIR := ./src/db/migrations
 
 # Load environment variables
 include .env
@@ -272,46 +229,7 @@ lint: ## Run linter
 <a name="schema-design"></a>
 ## 🗄️ **4. Database Schema Design**
 
-### **Planning Your Schema**
-
-Before writing migrations, plan your database schema:
-
-**Example: Blog Application**
-
-```
-┌─────────────┐
-│    users    │
-├─────────────┤
-│ id          │──┐
-│ username    │  │
-│ email       │  │
-│ password    │  │
-│ created_at  │  │
-│ updated_at  │  │
-└─────────────┘  │
-                 │
-                 │  ┌─────────────┐
-                 └─▶│    posts    │
-                    ├─────────────┤
-                    │ id          │──┐
-                    │ user_id     │  │
-                    │ title       │  │
-                    │ content     │  │
-                    │ published   │  │
-                    │ created_at  │  │
-                    │ updated_at  │  │
-                    └─────────────┘  │
-                                     │
-                                     │  ┌─────────────┐
-                                     └─▶│  comments   │
-                                        ├─────────────┤
-                                        │ id          │
-                                        │ post_id     │
-                                        │ user_id     │
-                                        │ content     │
-                                        │ created_at  │
-                                        └─────────────┘
-```
+`
 
 **db/schema.sql** (Reference only, not used by tools)
 ```sql
@@ -320,65 +238,21 @@ Before writing migrations, plan your database schema:
 
 -- Users table
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    bio TEXT,
-    avatar_url VARCHAR(500),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+
 );
 
 -- Posts table
 CREATE TABLE posts (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    content TEXT NOT NULL,
-    excerpt TEXT,
-    published BOOLEAN NOT NULL DEFAULT false,
-    published_at TIMESTAMP,
-    view_count INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+  
 );
 
--- Comments table
-CREATE TABLE comments (
-    id BIGSERIAL PRIMARY KEY,
-    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
 
--- Tags table
-CREATE TABLE tags (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    slug VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
 
--- Post tags junction table
-CREATE TABLE post_tags (
-    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-    tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (post_id, tag_id)
-);
 
 -- Indexes for performance
 CREATE INDEX idx_posts_user_id ON posts(user_id);
 CREATE INDEX idx_posts_published ON posts(published);
-CREATE INDEX idx_posts_slug ON posts(slug);
-CREATE INDEX idx_comments_post_id ON comments(post_id);
-CREATE INDEX idx_comments_user_id ON comments(user_id);
-CREATE INDEX idx_post_tags_post_id ON post_tags(post_id);
-CREATE INDEX idx_post_tags_tag_id ON post_tags(tag_id);
+
 ```
 
 ---
@@ -476,157 +350,6 @@ COMMENT ON COLUMN posts.excerpt IS 'Short preview of post content';
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS posts CASCADE;
--- +goose StatementEnd
-```
-
-#### **Migration 3: Create Comments Table**
-
-```bash
-make migrate-create name=create_comments_table
-```
-
-**db/migrations/00003_create_comments_table.sql**
-```sql
--- +goose Up
--- +goose StatementBegin
-CREATE TABLE comments (
-    id BIGSERIAL PRIMARY KEY,
-    post_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    parent_id BIGINT, -- For nested comments
-    content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
-    -- Foreign key constraints
-    CONSTRAINT fk_comments_post
-        FOREIGN KEY (post_id)
-        REFERENCES posts(id)
-        ON DELETE CASCADE,
-    
-    CONSTRAINT fk_comments_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
-    
-    CONSTRAINT fk_comments_parent
-        FOREIGN KEY (parent_id)
-        REFERENCES comments(id)
-        ON DELETE CASCADE
-);
-
--- Indexes
-CREATE INDEX idx_comments_post_id ON comments(post_id);
-CREATE INDEX idx_comments_user_id ON comments(user_id);
-CREATE INDEX idx_comments_parent_id ON comments(parent_id);
-CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
-
--- Prevent circular references (comment can't be its own parent)
-ALTER TABLE comments ADD CONSTRAINT check_not_self_parent 
-    CHECK (id != parent_id);
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TABLE IF EXISTS comments CASCADE;
--- +goose StatementEnd
-```
-
-#### **Migration 4: Create Tags System**
-
-```bash
-make migrate-create name=create_tags_system
-```
-
-**db/migrations/00004_create_tags_system.sql**
-```sql
--- +goose Up
--- +goose StatementBegin
--- Tags table
-CREATE TABLE tags (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    slug VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
--- Post-Tags junction table (many-to-many)
-CREATE TABLE post_tags (
-    post_id BIGINT NOT NULL,
-    tag_id BIGINT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
-    PRIMARY KEY (post_id, tag_id),
-    
-    CONSTRAINT fk_post_tags_post
-        FOREIGN KEY (post_id)
-        REFERENCES posts(id)
-        ON DELETE CASCADE,
-    
-    CONSTRAINT fk_post_tags_tag
-        FOREIGN KEY (tag_id)
-        REFERENCES tags(id)
-        ON DELETE CASCADE
-);
-
--- Indexes
-CREATE INDEX idx_tags_slug ON tags(slug);
-CREATE INDEX idx_post_tags_post_id ON post_tags(post_id);
-CREATE INDEX idx_post_tags_tag_id ON post_tags(tag_id);
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TABLE IF EXISTS post_tags CASCADE;
-DROP TABLE IF EXISTS tags CASCADE;
--- +goose StatementEnd
-```
-
-#### **Migration 5: Add Database Functions**
-
-```bash
-make migrate-create name=add_update_timestamp_function
-```
-
-**db/migrations/00005_add_update_timestamp_function.sql**
-```sql
--- +goose Up
--- +goose StatementBegin
--- Function to automatically update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Apply trigger to users table
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Apply trigger to posts table
-CREATE TRIGGER update_posts_updated_at
-    BEFORE UPDATE ON posts
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Apply trigger to comments table
-CREATE TRIGGER update_comments_updated_at
-    BEFORE UPDATE ON comments
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TRIGGER IF EXISTS update_users_updated_at ON users;
-DROP TRIGGER IF EXISTS update_posts_updated_at ON posts;
-DROP TRIGGER IF EXISTS update_comments_updated_at ON comments;
-DROP FUNCTION IF EXISTS update_updated_at_column();
 -- +goose StatementEnd
 ```
 
@@ -861,95 +584,3 @@ ORDER BY p.published_at DESC
 LIMIT $1;
 ```
 
-#### **Comment Queries**
-
-**db/queries/comments.sql**
-```sql
--- name: CreateComment :one
-INSERT INTO comments (
-    post_id, user_id, parent_id, content
-) VALUES (
-    $1, $2, $3, $4
-) RETURNING *;
-
--- name: GetCommentByID :one
-SELECT * FROM comments
-WHERE id = $1 LIMIT 1;
-
--- name: GetCommentWithAuthor :one
-SELECT 
-    c.*,
-    u.username as author_username,
-    u.avatar_url as author_avatar
-FROM comments c
-JOIN users u ON c.user_id = u.id
-WHERE c.id = $1 LIMIT 1;
-
--- name: ListCommentsByPost :many
-SELECT 
-    c.*,
-    u.username as author_username,
-    u.avatar_url as author_avatar
-FROM comments c
-JOIN users u ON c.user_id = u.id
-WHERE c.post_id = $1
-ORDER BY c.created_at ASC;
-
--- name: ListTopLevelComments :many
-SELECT 
-    c.*,
-    u.username as author_username,
-    u.avatar_url as author_avatar
-FROM comments c
-JOIN users u ON c.user_id = u.id
-WHERE c.post_id = $1 AND c.parent_id IS NULL
-ORDER BY c.created_at ASC;
-
--- name: ListReplies :many
-SELECT 
-    c.*,
-    u.username as author_username,
-    u.avatar_url as author_avatar
-FROM comments c
-JOIN users u ON c.user_id = u.id
-WHERE c.parent_id = $1
-ORDER BY c.created_at ASC;
-
--- name: ListCommentsByUser :many
-SELECT 
-    c.*,
-    p.title as post_title,
-    p.slug as post_slug
-FROM comments c
-JOIN posts p ON c.post_id = p.id
-WHERE c.user_id = $1
-ORDER BY c.created_at DESC
-LIMIT $2 OFFSET $3;
-
--- name: UpdateComment :one
-UPDATE comments
-SET 
-    content = $2,
-    updated_at = NOW()
-WHERE id = $1
-RETURNING *;
-
--- name: DeleteComment :exec
-DELETE FROM comments
-WHERE id = $1;
-
--- name: CountCommentsByPost :one
-SELECT COUNT(*) FROM comments
-WHERE post_id = $1;
-
--- name: CountCommentsByUser :one
-SELECT COUNT(*) FROM comments
-WHERE user_id = $1;
-```
-
-#### **Tag Queries**
-
-**db/queries/tags.sql**
-```sql
--- name: CreateTag :one
-INSERT INTO tags (

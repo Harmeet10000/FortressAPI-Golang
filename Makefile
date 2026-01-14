@@ -10,14 +10,20 @@ endif
 APP_NAME=fortress_api
 MAIN_PATH=./src/cmd/api
 BINARY_PATH=./bin/$(APP_NAME)
-MIGRATION_DIR=./src/internal/db/migrations
-SEED_DIR=./src/internal/db/seeds
+MIGRATION_DIR=./src/db/migrations
+SEED_DIR=./src/db/seeds
+QUERY_DIR=./src/db/queries
 
 # Database Configuration
 # DATABASE_URL is loaded from .env file (see above)
 # If not set, you can override with: make target DATABASE_URL="your-url"
 DB_URL=$(DATABASE_URL)
-
+DB_HOST=$(DATABASE_HOST)
+DB_PORT=$(DATABASE_PORT)
+DB_USER=$(DATABASE_USER)
+DB_PASSWORD=$(DATABASE_PASSWORD)
+DB_NAME=$(DATABASE_NAME)
+DB_SSL_MODE=$(DATABASE_SSL_MODE)
 # Colors for output
 # Using printf with octal escapes (most compatible)
 COLOR_RESET=$(shell printf '\033[0m')
@@ -58,30 +64,6 @@ clean: ## Remove build artifacts
 	rm -rf tmp/
 	@echo "$(COLOR_GREEN)Clean complete$(COLOR_RESET)"
 
-# ==============================================================================
-# Dependencies
-# ==============================================================================
-
-.PHONY: deps
-deps: ## Download Go module dependencies
-	@echo "$(COLOR_BLUE)Downloading dependencies...$(COLOR_RESET)"
-	go mod download
-
-.PHONY: deps-tidy
-deps-tidy: ## Tidy Go module dependencies
-	@echo "$(COLOR_BLUE)Tidying dependencies...$(COLOR_RESET)"
-	go mod tidy
-
-.PHONY: deps-verify
-deps-verify: ## Verify Go module dependencies
-	@echo "$(COLOR_BLUE)Verifying dependencies...$(COLOR_RESET)"
-	go mod verify
-
-.PHONY: deps-upgrade
-deps-upgrade: ## Upgrade all dependencies to latest versions
-	@echo "$(COLOR_BLUE)Upgrading dependencies...$(COLOR_RESET)"
-	go get -u ./...
-	go mod tidy
 
 # ==============================================================================
 # Code Quality
@@ -133,41 +115,6 @@ test-unit: ## Run unit tests only
 	@echo "$(COLOR_BLUE)Running unit tests...$(COLOR_RESET)"
 	go test -v -race -short ./...
 
-.PHONY: benchmark
-benchmark: ## Run benchmarks
-	@echo "$(COLOR_BLUE)Running benchmarks...$(COLOR_RESET)"
-	go test -bench=. -benchmem ./...
-
-# ==============================================================================
-# Database - Docker
-# ==============================================================================
-
-.PHONY: db-up
-db-up: ## Start database container
-	@echo "$(COLOR_BLUE)Starting database container...$(COLOR_RESET)"
-	docker-compose up -d postgres
-	@echo "$(COLOR_GREEN)Database container started$(COLOR_RESET)"
-
-.PHONY: db-down
-db-down: ## Stop database container
-	@echo "$(COLOR_BLUE)Stopping database container...$(COLOR_RESET)"
-	docker-compose down
-	@echo "$(COLOR_GREEN)Database container stopped$(COLOR_RESET)"
-
-.PHONY: db-logs
-db-logs: ## View database container logs
-	docker-compose logs -f postgres
-
-.PHONY: db-shell
-db-shell: ## Connect to database shell (psql)
-	@echo "$(COLOR_BLUE)Connecting to database...$(COLOR_RESET)"
-	docker-compose exec postgres psql -U $(DB_USER) -d $(DB_NAME)
-
-.PHONY: db-reset
-db-reset: db-down db-up ## Reset database (stop, start, migrate)
-	@echo "$(COLOR_YELLOW)Waiting for database to be ready...$(COLOR_RESET)"
-	@sleep 3
-	@$(MAKE) migrate-up
 
 # ==============================================================================
 # Migrations - Goose
@@ -243,6 +190,28 @@ migrate-validate: ## Validate migration files
 	goose -dir $(MIGRATION_DIR) validate
 
 # ==============================================================================
+# SQLc - Code Generation
+# ==============================================================================
+
+.PHONY: sqlc-install
+sqlc-install: ## Install sqlc code generator
+	@echo "$(COLOR_BLUE)Installing sqlc...$(COLOR_RESET)"
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	@echo "$(COLOR_GREEN)SQLc installed$(COLOR_RESET)"
+
+.PHONY: sqlc-generate
+sqlc-generate: ## Generate Go code from SQL queries
+	@echo "$(COLOR_BLUE)Generating code from SQL queries...$(COLOR_RESET)"
+	sqlc generate
+	@echo "$(COLOR_GREEN)Code generated in src/internal/database/$(COLOR_RESET)"
+
+.PHONY: sqlc-vet
+sqlc-vet: ## Validate SQL queries
+	@echo "$(COLOR_BLUE)Validating SQL queries...$(COLOR_RESET)"
+	sqlc vet
+	@echo "$(COLOR_GREEN)SQL queries validated$(COLOR_RESET)"
+
+# ==============================================================================
 # Database Seeding
 # ==============================================================================
 
@@ -316,45 +285,9 @@ db-restore: ## Restore database from file (usage: make db-restore FILE=backup.sq
 	@echo "$(COLOR_GREEN)Database restored$(COLOR_RESET)"
 
 # ==============================================================================
-# Docker
-# ==============================================================================
-
-.PHONY: docker-build
-docker-build: ## Build Docker image
-	@echo "$(COLOR_BLUE)Building Docker image...$(COLOR_RESET)"
-	docker build -t $(APP_NAME):latest .
-
-.PHONY: docker-up
-docker-up: ## Start all containers
-	@echo "$(COLOR_BLUE)Starting containers...$(COLOR_RESET)"
-	docker-compose up -d
-
-.PHONY: docker-down
-docker-down: ## Stop all containers
-	@echo "$(COLOR_BLUE)Stopping containers...$(COLOR_RESET)"
-	docker-compose down
-
-.PHONY: docker-logs
-docker-logs: ## View container logs
-	docker-compose logs -f
-
-.PHONY: docker-clean
-docker-clean: ## Remove all containers, images, and volumes
-	@echo "$(COLOR_YELLOW)Cleaning Docker resources...$(COLOR_RESET)"
-	docker-compose down -v --rmi all
-	@echo "$(COLOR_GREEN)Docker cleanup complete$(COLOR_RESET)"
-
-# ==============================================================================
 # Utilities
 # ==============================================================================
 
-.PHONY: install-tools
-install-tools: ## Install development tools
-	@echo "$(COLOR_BLUE)Installing development tools...$(COLOR_RESET)"
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	go install github.com/air-verse/air@latest
-	@echo "$(COLOR_GREEN)Tools installed$(COLOR_RESET)"
 
 .PHONY: swagger-gen
 swagger-gen: ## Generate Swagger documentation
@@ -372,8 +305,5 @@ mock-gen: ## Generate mocks for testing
 check: fmt vet lint test ## Run all checks (format, vet, lint, test)
 	@echo "$(COLOR_GREEN)All checks passed$(COLOR_RESET)"
 
-.PHONY: setup
-setup: deps install-tools migrate-up ## Setup project (deps, tools, migrations)
-	@echo "$(COLOR_GREEN)Project setup complete$(COLOR_RESET)"
 
 .DEFAULT_GOAL := help
