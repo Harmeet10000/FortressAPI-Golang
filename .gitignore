@@ -94,3 +94,5 @@ uploads/
 
 # executables binary
 fortress_api
+.amazonq/
+todo.md
