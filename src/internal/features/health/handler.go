@@ -10,7 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	"github.com/Harmeet10000/Fortress_API/src/internal/utils"
 )
 
 // HealthController handles health check endpoints
@@ -46,25 +45,25 @@ func (hc *HealthController) Health(c echo.Context) error {
 	now := time.Now()
 
 	// Get system health
-	systemHealth := utils.GetSystemHealth()
+	systemHealth := GetSystemHealth()
 
 	// Get application health
-	appHealth := utils.GetApplicationHealth()
+	appHealth := GetApplicationHealth()
 
 	// Check database
-	dbHealth := utils.CheckDatabasePool(ctx, hc.db)
+	dbHealth := CheckDatabasePool(ctx, hc.db)
 
 	// Check Redis
-	redisHealth := utils.CheckRedis(ctx, hc.redis)
+	redisHealth := CheckRedis(ctx, hc.redis)
 
 	// Check memory
-	memHealth := utils.CheckMemory()
+	memHealth := CheckMemory()
 
 	// Check disk
-	diskHealth := utils.CheckDisk()
+	diskHealth := CheckDisk()
 
 	// Get CPU info
-	cpuInfo := utils.CheckCPU()
+	cpuInfo := CheckCPU()
 
 	// Determine overall status
 	overallStatus := "healthy"
@@ -135,7 +134,7 @@ func (hc *HealthController) ReadinessProbe(c echo.Context) error {
 	defer cancel()
 
 	// Check database
-	dbHealth := utils.CheckDatabasePool(ctx, hc.db)
+	dbHealth := CheckDatabasePool(ctx, hc.db)
 	if dbHealth.Status != "healthy" {
 		hc.logger.Warn("readiness probe failed", zap.String("reason", "database"))
 		return c.JSON(http.StatusServiceUnavailable, map[string]string{
@@ -146,7 +145,7 @@ func (hc *HealthController) ReadinessProbe(c echo.Context) error {
 	}
 
 	// Check Redis
-	redisHealth := utils.CheckRedis(ctx, hc.redis)
+	redisHealth := CheckRedis(ctx, hc.redis)
 	if redisHealth.Status != "healthy" {
 		hc.logger.Warn("readiness probe failed", zap.String("reason", "redis"))
 		return c.JSON(http.StatusServiceUnavailable, map[string]string{
@@ -167,10 +166,10 @@ func (hc *HealthController) ReadinessProbe(c echo.Context) error {
 // @Description Returns CPU, memory, and platform information
 // @Tags Health
 // @Produce json
-// @Success 200 {object} utils.SystemHealthResponse
+// @Success 200 {object} SystemHealthResponse
 // @Router /health/system [get]
 func (hc *HealthController) SystemHealth(c echo.Context) error {
-	system := utils.GetSystemHealth()
+	system := GetSystemHealth()
 	return c.JSON(http.StatusOK, system)
 }
 
@@ -179,10 +178,10 @@ func (hc *HealthController) SystemHealth(c echo.Context) error {
 // @Description Returns uptime, memory usage, and version information
 // @Tags Health
 // @Produce json
-// @Success 200 {object} utils.ApplicationHealthResponse
+// @Success 200 {object} ApplicationHealthResponse
 // @Router /health/app [get]
 func (hc *HealthController) ApplicationHealth(c echo.Context) error {
-	app := utils.GetApplicationHealth()
+	app := GetApplicationHealth()
 	return c.JSON(http.StatusOK, app)
 }
 
@@ -191,9 +190,9 @@ func (hc *HealthController) ApplicationHealth(c echo.Context) error {
 // @Description Returns memory usage percentage and status
 // @Tags Health
 // @Produce json
-// @Success 200 {object} utils.MemoryHealthResponse
+// @Success 200 {object} MemoryHealthResponse
 // @Router /health/memory [get]
 func (hc *HealthController) MemoryHealth(c echo.Context) error {
-	memory := utils.CheckMemory()
+	memory := CheckMemory()
 	return c.JSON(http.StatusOK, memory)
 }

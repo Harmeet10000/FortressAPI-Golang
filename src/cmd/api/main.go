@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	// "errors"
-	// "net/http"
+	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	"github.com/Harmeet10000/Fortress_API/src/internal/config"
@@ -15,7 +15,12 @@ import (
 const DefaultContextTimeout = 30
 
 func main() {
-	cfg, err := config.LoadConfig()
+	wd, err := os.Getwd()
+	if err != nil {
+		panic("failed to get working directory: " + err.Error())
+	}
+	envPath := filepath.Join(wd, ".env")
+	cfg, err := config.LoadConfig(envPath)
 	if err != nil {
 		panic("failed to load config: " + err.Error())
 	}
@@ -73,3 +78,67 @@ func main() {
 
 	log.Info().Msg("server exited properly")
 }
+// package main
+
+// import (
+// 	"context"
+// 	"log"
+// 	"net/http"
+// 	"os"
+// 	"os/signal"
+// 	"time"
+
+// 	"your-project/internal/connections"
+// 	"your-project/internal/middleware"
+
+// 	// Features
+// 	"your-project/internal/features/auth"
+// 	"your-project/internal/features/users"
+// 	"your-project/internal/features/files"
+// 	"your-project/internal/features/payments"
+
+// 	"github.com/labstack/echo/v4"
+// 	echomiddleware "github.com/labstack/echo/v4/middleware"
+// )
+
+// func main() {
+// 	// 1. Initialize Infrastructure (Database, Redis, etc.)
+// 	db := connections.NewPostgresDB()
+// 	asynqClient := connections.NewAsynqClient() // For features that need to enqueue tasks
+
+// 	// 2. Initialize Echo
+// 	e := echo.New()
+
+// 	// 3. Global Middlewares
+// 	e.Use(echomiddleware.Logger())
+// 	e.Use(echomiddleware.Recover())
+// 	e.Use(echomiddleware.CORS())
+// 	e.Use(middleware.CustomAuthMiddleware) // Your own internal middleware
+
+// 	// 4. Feature Initialization & Route Registration
+// 	// We pass the DB and Echo instance to each feature
+// 	apiGroup := e.Group("/api/v1")
+
+// 	auth.RegisterHandlers(apiGroup, db, asynqClient)
+// 	users.RegisterHandlers(apiGroup, db)
+// 	files.RegisterHandlers(apiGroup, db)
+// 	payments.RegisterHandlers(apiGroup, db)
+
+// 	// 5. Start Server with Graceful Shutdown
+// 	go func() {
+// 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+// 			e.Logger.Fatal("shutting down the server")
+// 		}
+// 	}()
+
+// 	// Wait for interrupt signal to gracefully shutdown the server
+// 	quit := make(chan os.Signal, 1)
+// 	signal.Notify(quit, os.Interrupt)
+// 	<-quit
+
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
+// 	if err := e.Shutdown(ctx); err != nil {
+// 		e.Logger.Fatal(err)
+// 	}
+// }

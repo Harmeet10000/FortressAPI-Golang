@@ -7,7 +7,7 @@
 6. understand how middlewares are made used 
 7. understand how error handling is done
 8. rewrite health folder if necessary
-9. check how it put useful(corelationalID, more) in request context
+9. check how it put useful(corelationalID, more) in request context like logger, db, cache, asynq, helpers/utils
 10. swagger docs
 11. rewrite httpResponse
 12. understand pkg folder role and use and figure out lib/helper required or not
@@ -19,7 +19,7 @@
 18. do a go mod tidy carefully
 19. learn how syntax highlighting works
 20. check air implementation
-21. 
+21. check all echo features provided grouping "api/v1" and then "auth" and rest
 
 
 ```
