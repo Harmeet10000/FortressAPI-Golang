@@ -7,10 +7,10 @@ import (
 
 type Middlewares struct {
 	Global          *GlobalMiddlewares
-	// Auth            *AuthMiddleware
+	Auth            *AuthMiddleware
 	ContextEnhancer *ContextEnhancer
 	Tracing         *TracingMiddleware
-	// RateLimit       *RateLimitMiddleware
+	RateLimit       *RateLimitMiddleware
 }
 
 func NewMiddlewares(s *app.Server) *Middlewares {
@@ -22,9 +22,9 @@ func NewMiddlewares(s *app.Server) *Middlewares {
 
 	return &Middlewares{
 		Global:          NewGlobalMiddlewares(s),
-		// Auth:            NewAuthMiddleware(s),
+		Auth:            NewAuthMiddleware(s),
 		ContextEnhancer: NewContextEnhancer(s),
 		Tracing:         NewTracingMiddleware(s, nrApp),
-		// RateLimit:       NewRateLimitMiddleware(s),
+		RateLimit:       NewRateLimitMiddleware(s),
 	}
 }
