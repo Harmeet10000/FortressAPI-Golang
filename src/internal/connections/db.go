@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/newrelic/go-agent/v3/integrations/nrpgx5"
 	"github.com/Harmeet10000/Fortress_API/src/internal/config"
-	loggerConfig "github.com/Harmeet10000/Fortress_API/src/internal/utils"
+	loggerConfig "github.com/Harmeet10000/Fortress_API/src/internal/logger"
 )
 
 type Database struct {

@@ -1,4 +1,4 @@
-package main
+package docs
 
 import (
 	"crypto/tls"
@@ -7,14 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	mw "restapi/internal/api/middlewares"
-	"restapi/internal/api/router"
-	"restapi/pkg/lib"
+	// mw "restapi/internal/api/middlewares"
+	// "restapi/internal/api/router"
+	// "restapi/pkg/lib"
 
 	"github.com/joho/godotenv"
 )
 
-//go:embed .env
 var envFile embed.FS
 
 func loadEnvFromEmbeddedFile() {
@@ -75,27 +74,27 @@ func main() {
 
 	// rl := mw.NewRateLimiter(5, time.Minute)
 
-	hppOptions := mw.HPPOptions{
-		CheckQuery:                  true,
-		CheckBody:                   true,
-		CheckBodyOnlyForContentType: "application/x-www-form-urlencoded",
-		Whitelist:                   []string{"sortBy", "sortOrder", "name", "age", "class"},
-	}
+	// hppOptions := mw.HPPOptions{
+	// 	CheckQuery:                  true,
+	// 	CheckBody:                   true,
+	// 	CheckBodyOnlyForContentType: "application/x-www-form-urlencoded",
+	// 	Whitelist:                   []string{"sortBy", "sortOrder", "name", "age", "class"},
+	// }
 
 	// secureMux := mw.Cors(rl.Middleware(mw.ResponseTimeMiddleware(mw.SecurityHeaders(mw.Compression(mw.Hpp(hppOptions)(mux))))))
 	// secureMux := jwtMiddleware(mw.SecurityHeaders(router))
 	// secureMux := (mw.SecurityHeaders(router))
 	// secureMux := mw.XSSMiddleware(router)
-	router := router.MainRouter()
-	jwtMiddleware := mw.MiddlewaresExcludePaths(mw.JWTMiddleware, "/execs/login", "/execs/forgotpassword", "/execs/resetpassword/reset")
-	// secureMux := lib.ApplyMiddlewares(router, mw.SecurityHeaders, mw.Compression, mw.Hpp(hppOptions), mw.XSSMiddleware, jwtMiddleware, mw.ResponseTimeMiddleware, rl.Middleware, mw.Cors)
-	secureMux := lib.ApplyMiddlewares(router, mw.SecurityHeaders, mw.Compression, mw.Hpp(hppOptions), mw.XSSMiddleware, jwtMiddleware, mw.ResponseTimeMiddleware, mw.Cors)
+	// router := router.MainRouter()
+	// jwtMiddleware := mw.MiddlewaresExcludePaths(mw.JWTMiddleware, "/execs/login", "/execs/forgotpassword", "/execs/resetpassword/reset")
+	// // secureMux := lib.ApplyMiddlewares(router, mw.SecurityHeaders, mw.Compression, mw.Hpp(hppOptions), mw.XSSMiddleware, jwtMiddleware, mw.ResponseTimeMiddleware, rl.Middleware, mw.Cors)
+	// secureMux := lib.ApplyMiddlewares(router, mw.SecurityHeaders, mw.Compression, mw.Hpp(hppOptions), mw.XSSMiddleware, jwtMiddleware, mw.ResponseTimeMiddleware, mw.Cors)
 
 	// Create custom server
 	server := &http.Server{
 		Addr: port,
 		// Handler: mux,
-		Handler:   secureMux,
+		// Handler:   secureMux,
 		TLSConfig: tlsConfig,
 	}
 

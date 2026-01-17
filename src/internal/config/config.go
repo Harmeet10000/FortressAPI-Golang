@@ -64,6 +64,7 @@ type RedisConfig struct {
 	Port     int    `koanf:"port" validate:"required,min=1,max=65535"`
 	Username string `koanf:"username"`
 	Password string `koanf:"password" validate:"required"`
+	Address  string `koanf:"address" validate:"required"`
 }
 
 // RabbitMQConfig contains RabbitMQ message queue configuration

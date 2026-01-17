@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	// "github.com/Harmeet10000/Fortress_API/src/internal/helpers/email"
 	"github.com/hibiken/asynq"
 )
 
@@ -32,6 +34,9 @@ func HandleWelcomeEmailTask(ctx context.Context, t *asynq.Task) error {
 	}
 
 	fmt.Printf("Sending welcome email to User %d at %s\n", p.UserID, p.Email)
-	// Call your actual email helper here: helpers.SendEmail(...)
+	// err := email.SendWelcomeEmail(p.Email, p.UserID)
+	// if err != nil {
+	// 	return fmt.Errorf("send welcome email failed: %w", err)
+	// }
 	return nil
 }

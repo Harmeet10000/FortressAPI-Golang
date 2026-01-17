@@ -1,4 +1,4 @@
-package lib
+package docs
 
 import "net/http"
 

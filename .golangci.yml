@@ -6,13 +6,14 @@ run:
 linters:
   default: none
   enable:
+    # Core linters
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - typecheck
     - unused
+
+    # Code quality
     - asasalint
     - asciicheck
     - bidichk
@@ -36,7 +37,6 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -68,8 +68,6 @@ linters:
     - sloglint
     - spancheck
     - sqlclosecheck
-    - stylecheck
-
     - testableexamples
     - testifylint
     - testpackage
@@ -92,30 +90,6 @@ linters:
       check:
         - switch
         - map
-
-    exhaustruct:
-      exclude:
-        - "^net/http.Client$"
-        - "^net/http.Cookie$"
-        - "^net/http.Request$"
-        - "^net/http.Response$"
-        - "^net/http.Server$"
-        - "^net/http.Transport$"
-        - "^net/url.URL$"
-        - "^os/exec.Cmd$"
-        - "^reflect.StructField$"
-        - "^github.com/Shopify/sarama.Config$"
-        - "^github.com/Shopify/sarama.ProducerMessage$"
-        - "^github.com/mitchellh/mapstructure.DecoderConfig$"
-        - "^github.com/prometheus/client_golang/.+Opts$"
-        - "^github.com/spf13/cobra.Command$"
-        - "^github.com/spf13/cobra.CompletionOptions$"
-        - "^github.com/stretchr/testify/mock.Mock$"
-        - "^github.com/testcontainers/testcontainers-go.+Request$"
-        - "^github.com/testcontainers/testcontainers-go.FromDockerfile$"
-        - "^golang.org/x/tools/go/analysis.Analyzer$"
-        - "^google.golang.org/protobuf/.+Options$"
-        - "^gopkg.in/yaml.v3.Node$"
 
     funlen:
       lines: 100
@@ -159,9 +133,6 @@ linters:
         shadow:
           strict: true
 
-    inamedparam:
-      skip-single-param: true
-
     mnd:
       ignored-functions:
         - args.Error
@@ -200,24 +171,20 @@ linters:
       no-global: "all"
       context: "scope"
 
-
-
-  exclusions:
-    rules:
-      - source: "(noinspection|TODO)"
-        linters: [godot]
-      - source: "//noinspection"
-        linters: [gocritic]
-      - path: "_test\\.go"
-        linters:
-          - bodyclose
-          - dupl
-          - errcheck
-          - funlen
-          - goconst
-          - gosec
-          - noctx
-          - wrapcheck
+  exclude-rules:
+    - source: "(noinspection|TODO)"
+      linters: [godot]
+    - source: "//noinspection"
+      linters: [gocritic]
+    - path: "_test\\.go"
+      linters:
+        - bodyclose
+        - dupl
+        - errcheck
+        - funlen
+        - goconst
+        - gosec
+        - noctx
 
 issues:
   max-same-issues: 50

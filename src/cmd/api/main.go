@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"time"
 
 	"github.com/Harmeet10000/Fortress_API/src/internal/config"
-	"github.com/Harmeet10000/Fortress_API/src/internal/utils"
+	"github.com/Harmeet10000/Fortress_API/src/internal/logger"
 )
 
 const DefaultContextTimeout = 30
@@ -26,10 +26,11 @@ func main() {
 	}
 
 	// Initialize New Relic logger service
-	loggerService := utils.NewLoggerService(cfg.Observability)
+	loggerService := logger.NewLoggerService(cfg.Observability)
 	defer loggerService.Shutdown()
 
-	log := utils.NewLoggerWithService(cfg.Observability, loggerService)
+	log := logger.NewLoggerWithService(cfg.Observability, loggerService)
+	// log.Info().Msg("server loaded successfully")
 
 	// if cfg.Primary.Env != "local" {
 	// 	if err := .Migrate(context.Background(), &log, cfg); err != nil {
@@ -38,7 +39,7 @@ func main() {
 	// }
 
 	// Initialize server
-	// srv, err := server.New(cfg, &log, loggerService)
+	// srv, err := New(cfg, &log, loggerService)
 	// if err != nil {
 	// 	log.Fatal().Err(err).Msg("failed to initialize server")
 	// }

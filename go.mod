@@ -44,6 +44,7 @@ require (
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/ckaznocha/intrange v0.3.0 // indirect
+	github.com/clerk/clerk-sdk-go/v2 v2.5.1 // indirect
 	github.com/coder/websocket v1.8.12 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/curioswitch/go-reassign v0.3.0 // indirect
@@ -65,6 +66,7 @@ require (
 	github.com/go-critic/go-critic v0.12.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.30.1 // indirect
@@ -165,7 +167,10 @@ require (
 	github.com/newrelic/go-agent/v3 v3.42.0 // indirect
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrwriter v1.0.0 // indirect
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter v1.0.5 // indirect
+	github.com/newrelic/go-agent/v3/integrations/nrecho-v4 v1.1.5 // indirect
 	github.com/newrelic/go-agent/v3/integrations/nrpgx5 v1.3.3 // indirect
+	github.com/newrelic/go-agent/v3/integrations/nrpkgerrors v1.1.0 // indirect
+	github.com/newrelic/go-agent/v3/integrations/nrredis-v9 v1.1.2 // indirect
 	github.com/nishanths/exhaustive v0.12.0 // indirect
 	github.com/nishanths/predeclared v0.2.2 // indirect
 	github.com/nunnatsa/ginkgolinter v0.19.1 // indirect
@@ -291,4 +296,3 @@ require (
 	mvdan.cc/gofumpt v0.7.0 // indirect
 	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
 )
-

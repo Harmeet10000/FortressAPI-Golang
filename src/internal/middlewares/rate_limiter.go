@@ -1,55 +1,24 @@
 package middlewares
 
 import (
-	"fmt"
-	"net/http"
-	"sync"
-	"time"
+	"github.com/Harmeet10000/Fortress_API/src/internal/app"
 )
 
-type rateLimiter struct {
-	mu        sync.Mutex
-	visitors  map[string]int
-	limit     int
-	resetTime time.Duration
+type RateLimitMiddleware struct {
+	server *app.Server
 }
 
-func NewRateLimiter(limit int, resetTime time.Duration) *rateLimiter {
-	rl := &rateLimiter{
-		visitors:  make(map[string]int),
-		limit:     limit,
-		resetTime: resetTime,
-	}
-	// start the reset routine
-	go rl.resetVisitorCount()
-	return rl
-}
-
-func (rl *rateLimiter) resetVisitorCount() {
-	for {
-		time.Sleep(rl.resetTime)
-		rl.mu.Lock()
-		rl.visitors = make(map[string]int)
-		rl.mu.Unlock()
+func NewRateLimitMiddleware(s *app.Server) *RateLimitMiddleware {
+	return &RateLimitMiddleware{
+		server: s,
 	}
 }
 
-func (rl *rateLimiter) RLMiddleware(next http.Handler) http.Handler {
-	fmt.Println("Rate Limiter Middleware...")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Rate Limiter Middleware being returned...")
-		rl.mu.Lock()
-		defer rl.mu.Unlock()
-
-		visitorIP := r.RemoteAddr // You might want to extract the IP in a more sophisticated way
-		rl.visitors[visitorIP]++
-		// fmt.Printf("Vistor count from %v is %v\n", visitorIP, rl.visitors[visitorIP])
-
-		if rl.visitors[visitorIP] > rl.limit {
-			http.Error(w, "Too many requests", http.StatusTooManyRequests)
-			return
-		}
-		next.ServeHTTP(w, r)
-		fmt.Println("Rate Limiter ends...")
-	})
+func (r *RateLimitMiddleware) RecordRateLimitHit(endpoint string) {
+	if r.server.LoggerService != nil && r.server.LoggerService.GetApplication() != nil {
+		r.server.LoggerService.GetApplication().RecordCustomEvent("RateLimitHit", map[string]interface{}{
+			"endpoint": endpoint,
+		})
+	}
 }
+
