@@ -9,10 +9,9 @@ import (
 
 	"github.com/Harmeet10000/Fortress_API/src/internal/config"
 	"github.com/Harmeet10000/Fortress_API/src/internal/connections"
+	"github.com/Harmeet10000/Fortress_API/src/internal/helper/job"
 	loggerPkg "github.com/Harmeet10000/Fortress_API/src/internal/logger"
 	"github.com/newrelic/go-agent/v3/integrations/nrredis-v9"
-
-	// loggerPkg
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 )
@@ -24,7 +23,7 @@ type Server struct {
 	DB            *connections.Database
 	Redis         *redis.Client
 	httpServer    *http.Server
-	// Job           *job.JobService
+	Job           *job.JobService
 }
 
 func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.LoggerService) (*Server, error) {
@@ -51,13 +50,13 @@ func New(cfg *config.Config, logger *zerolog.Logger, loggerService *loggerPkg.Lo
 	}
 
 	// job service
-	// jobService := job.NewJobService(logger, cfg)
-	// jobService.InitHandlers(cfg, logger)
+	jobService := job.NewJobService(logger, cfg)
+	jobService.InitHandlers(cfg, logger)
 
 	// Start job server
-	// if err := jobService.Start(); err != nil {
-	// 	return nil, err
-	// }
+	if err := jobService.Start(); err != nil {
+		return nil, err
+	}
 
 	server := &Server{
 		Config:        cfg,

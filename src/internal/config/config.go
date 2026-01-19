@@ -26,6 +26,7 @@ type Config struct {
 	S3            S3Config             `koanf:"s3" validate:"required"`
 	Auth          AuthConfig           `koanf:"auth" validate:"required"`
 	Observability *ObservabilityConfig `koanf:"observability"`
+	Cron          *CronConfig          `koanf:"cron"`
 }
 
 // PrimaryConfig contains basic environment configuration
@@ -89,12 +90,31 @@ type S3Config struct {
 	Region        string `koanf:"region" validate:"required"`
 	Bucket        string `koanf:"bucket" validate:"required"`
 	Prefix        string `koanf:"prefix"`
+	EndpointURL   string `koanf:"endpoint_url"`
+}
+type CronConfig struct {
+	ArchiveDaysThreshold        int `koanf:"archive_days_threshold"`
+	BatchSize                   int `koanf:"batch_size"`
+	ReminderHours               int `koanf:"reminder_hours"`
+	MaxTodosPerUserNotification int `koanf:"max_todos_per_user_notification"`
+}
+
+func DefaultCronConfig() *CronConfig {
+	return &CronConfig{
+		ArchiveDaysThreshold:        30,
+		BatchSize:                   100,
+		ReminderHours:               24,
+		MaxTodosPerUserNotification: 10,
+	}
 }
 
 // AuthConfig contains authentication configuration
 type AuthConfig struct {
 	SecretKey string `koanf:"secret_key" validate:"required"`
 }
+
+
+
 
 // LoadConfig loads and validates the configuration from environment variables and .env file
 func LoadConfig(envFilePath string) (*Config, error) {

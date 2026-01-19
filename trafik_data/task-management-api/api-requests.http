@@ -1,0 +1,87 @@
+### Health Check
+GET http://localhost:8080/health
+
+### Create Category
+POST http://localhost:8080/api/v1/categories
+Content-Type: application/json
+
+{
+  "name": "Work",
+  "description": "Work-related tasks",
+  "color": "#FF5733"
+}
+
+### Get Category by ID
+GET http://localhost:8080/api/v1/categories/{{category_id}}
+
+### List Categories
+GET http://localhost:8080/api/v1/categories?page=1&page_size=10
+
+### Update Category
+PUT http://localhost:8080/api/v1/categories/{{category_id}}
+Content-Type: application/json
+
+{
+  "name": "Personal",
+  "description": "Personal tasks"
+}
+
+### Search Categories
+GET http://localhost:8080/api/v1/categories/search?q=work&page=1&page_size=10
+
+### Delete Category
+DELETE http://localhost:8080/api/v1/categories/{{category_id}}
+
+### Create Todo
+POST http://localhost:8080/api/v1/todos
+Content-Type: application/json
+
+{
+  "title": "Complete project documentation",
+  "description": "Write comprehensive documentation for the API",
+  "status": "pending",
+  "priority": "high",
+  "category_id": "{{category_id}}",
+  "due_date": "2024-12-31T23:59:59Z"
+}
+
+### Get Todo by ID
+GET http://localhost:8080/api/v1/todos/{{todo_id}}
+
+### List Todos
+GET http://localhost:8080/api/v1/todos?page=1&page_size=10
+
+### List Todos by Status
+GET http://localhost:8080/api/v1/todos?status=pending&page=1&page_size=10
+
+### List Todos by Category
+GET http://localhost:8080/api/v1/todos?category_id={{category_id}}&page=1&page_size=10
+
+### Delete Todo
+DELETE http://localhost:8080/api/v1/todos/{{todo_id}}
+
+### Create Comment
+POST http://localhost:8080/api/v1/comments
+Content-Type: application/json
+
+{
+  "todo_id": "{{todo_id}}",
+  "content": "This is a comment on the todo"
+}
+
+### Get Comment by ID
+GET http://localhost:8080/api/v1/comments/{{comment_id}}
+
+### List Comments for Todo
+GET http://localhost:8080/api/v1/todos/{{todo_id}}/comments?page=1&page_size=10
+
+### Update Comment
+PUT http://localhost:8080/api/v1/comments/{{comment_id}}
+Content-Type: application/json
+
+{
+  "content": "Updated comment content"
+}
+
+### Delete Comment
+DELETE http://localhost:8080/api/v1/comments/{{comment_id}}

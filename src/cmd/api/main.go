@@ -15,8 +15,8 @@ import (
 	"github.com/Harmeet10000/Fortress_API/src/internal/handler"
 	"github.com/Harmeet10000/Fortress_API/src/internal/logger"
 	"github.com/Harmeet10000/Fortress_API/src/internal/repository"
-	router "github.com/Harmeet10000/Fortress_API/src/internal/routers"
-	"github.com/Harmeet10000/Fortress_API/src/internal/services"
+	router "github.com/Harmeet10000/Fortress_API/src/internal/router"
+	"github.com/Harmeet10000/Fortress_API/src/internal/service"
 )
 
 const DefaultContextTimeout = 30
@@ -53,7 +53,7 @@ func main() {
 
 	// Initialize repositories, services, and handlers
 	repos := repository.NewRepositories(srv)
-	services, serviceErr := services.NewServices(srv, repos)
+	services, serviceErr := service.NewServices(srv, repos)
 	if serviceErr != nil {
 		log.Fatal().Err(serviceErr).Msg("could not create services")
 	}

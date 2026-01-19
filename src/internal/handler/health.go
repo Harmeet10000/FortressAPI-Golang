@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Harmeet10000/Fortress_API/src/internal/middlewares"
+	"github.com/Harmeet10000/Fortress_API/src/internal/middleware"
 	"github.com/Harmeet10000/Fortress_API/src/internal/app"
 
 	"github.com/labstack/echo/v4"
@@ -24,7 +24,7 @@ func NewHealthHandler(s *app.Server) *HealthHandler {
 
 func (h *HealthHandler) CheckHealth(c echo.Context) error {
 	start := time.Now()
-	logger := middlewares.GetLogger(c).With().
+	logger := middleware.GetLogger(c).With().
 		Str("operation", "health_check").
 		Logger()
 

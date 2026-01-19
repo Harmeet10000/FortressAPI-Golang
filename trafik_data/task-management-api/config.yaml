@@ -1,0 +1,35 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  shutdown_timeout: 10s
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: task_management
+  sslmode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 5m
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+resend:
+  api_key: ""
+  from_email: "noreply@yourdomain.com"
+
+asynq:
+  redis_addr: localhost:6379
+  concurrency: 10
+
+log:
+  level: debug
+  format: json

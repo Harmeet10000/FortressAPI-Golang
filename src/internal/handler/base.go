@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/newrelic/go-agent/v3/integrations/nrpkgerrors"
 	"github.com/newrelic/go-agent/v3/newrelic"
-	"github.com/Harmeet10000/Fortress_API/src/internal/middlewares"
+	"github.com/Harmeet10000/Fortress_API/src/internal/middleware"
 	"github.com/Harmeet10000/Fortress_API/src/internal/app"
 	"github.com/Harmeet10000/Fortress_API/src/internal/validation"
 )
@@ -117,7 +117,7 @@ func handleRequest[Req validation.Validatable](
 	}
 
 	// Get context-enhanced logger
-	loggerBuilder := middlewares.GetLogger(c).With().
+	loggerBuilder := middleware.GetLogger(c).With().
 		Str("operation", responseHandler.GetOperation()).
 		Str("method", method).
 		Str("path", path).
